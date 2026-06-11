@@ -10,6 +10,10 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: locations
+    description: Travel locations
+  - name: admin
+    description: Admin operations
 paths:
   /healthz:
     get:
@@ -24,7 +28,93 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /locations:
+    get:
+      operationId: listLocations
+      tags: [locations]
+      summary: List all travel locations
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TravelLocation"
+    post:
+      operationId: createLocation
+      tags: [locations]
+      summary: Add a travel location (admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LocationInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelLocation"
+        "400":
+          description: Validation error
+        "401":
+          description: Unauthorized
+
+  /locations/{id}:
+    delete:
+      operationId: deleteLocation
+      tags: [locations]
+      summary: Delete a travel location (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+
+  /admin/login:
+    post:
+      operationId: adminLogin
+      tags: [admin]
+      summary: Admin login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminLoginInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminToken"
+        "401":
+          description: Invalid password
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
   schemas:
     HealthStatus:
       type: object
@@ -34,3 +124,53 @@ components:
       required:
         - status
 
+    TravelLocation:
+      type: object
+      required: [id, city, country, lat, lng, continent, createdAt]
+      properties:
+        id:
+          type: integer
+        city:
+          type: string
+        country:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+        continent:
+          type: string
+        createdAt:
+          type: string
+
+    LocationInput:
+      type: object
+      required: [city, country, lat, lng, continent]
+      properties:
+        city:
+          type: string
+          minLength: 1
+        country:
+          type: string
+          minLength: 1
+        lat:
+          type: number
+        lng:
+          type: number
+        continent:
+          type: string
+          minLength: 1
+
+    AdminLoginInput:
+      type: object
+      required: [password]
+      properties:
+        password:
+          type: string
+
+    AdminToken:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
