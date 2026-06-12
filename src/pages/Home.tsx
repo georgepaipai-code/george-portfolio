@@ -1,11 +1,11 @@
 import { useState, useMemo } from "react";
-import { Link } from "wouter";
-import { InteractiveGlobe, type TravelLocation } from "@/components/Globe";
-import { useListLocations } from "@/hooks/use-locations";
+import { InteractiveGlobe } from "@/components/Globe";
+import type { TravelLocation } from "@/components/Globe";
+import { travelLocations } from "@/data/travel-locations";
 
 export default function Home() {
   const [selectedLocation, setSelectedLocation] = useState<TravelLocation | null>(null);
-  const { data: locations = [], isLoading } = useListLocations();
+  const locations = travelLocations as TravelLocation[];
 
   const stats = useMemo(() => {
     const countries = new Set(locations.map(l => l.country)).size;
@@ -64,17 +64,11 @@ export default function Home() {
           </div>
 
           <div className="flex-1 w-full relative">
-            {isLoading ? (
-              <div className="w-full h-full flex items-center justify-center">
-                <div className="w-6 h-6 rounded-full border-2 border-amber-500/30 border-t-amber-500 animate-spin" />
-              </div>
-            ) : (
-              <InteractiveGlobe
-                locations={locations}
-                targetLocation={selectedLocation}
-                onLocationClick={setSelectedLocation}
-              />
-            )}
+            <InteractiveGlobe
+              locations={locations}
+              targetLocation={selectedLocation}
+              onLocationClick={setSelectedLocation}
+            />
             {/* Vignette */}
             <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_40%,rgba(10,10,15,0.8)_100%)]" />
           </div>
@@ -130,12 +124,6 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Admin link — subtle, at bottom */}
-          <div className="mt-auto px-8 py-6 border-t border-white/5">
-            <Link href="/admin" className="text-white/20 hover:text-white/50 text-xs transition-colors" data-testid="link-admin">
-              Admin
-            </Link>
-          </div>
         </aside>
 
       </main>
