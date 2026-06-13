@@ -10,7 +10,6 @@ export interface TravelLocation {
   lat: number;
   lng: number;
   continent: string;
-  createdAt: string;
 }
 
 interface GlobeProps {
@@ -39,6 +38,25 @@ const COUNTRY_ISO: Record<string, number[]> = {
   "Taiwan": [158],
   "Indonesia": [360],
   "Australia": [36],
+  "Iceland": [352],
+  "Panama": [591],
+  "Peru": [604],
+  "Argentina": [32],
+  "Germany": [276],
+  "Hungary": [348],
+  "Turkey": [792],
+  "Israel": [376],
+  "Jordan": [400],
+  "Maldives": [462],
+  "Sri Lanka": [144],
+  "Malaysia": [458],
+  "Vietnam": [704],
+  "Portugal": [620],
+  "Croatia": [191],
+  "Tanzania": [834],
+  "Kenya": [404],
+  "Ethiopia": [231],
+  "South Africa": [710],
 };
 
 export function InteractiveGlobe({ locations, onLocationClick, targetLocation }: GlobeProps) {

@@ -29,7 +29,11 @@ export default function Home() {
       "Italy": "🇮🇹", "Netherlands": "🇳🇱", "Czech Republic": "🇨🇿", "Switzerland": "🇨🇭",
       "Japan": "🇯🇵", "South Korea": "🇰🇷", "China": "🇨🇳", "Hong Kong": "🇭🇰",
       "Singapore": "🇸🇬", "Thailand": "🇹🇭", "Taiwan": "🇹🇼", "Indonesia": "🇮🇩",
-      "Australia": "🇦🇺",
+      "Australia": "🇦🇺", "Iceland": "🇮🇸", "Panama": "🇵🇦", "Peru": "🇵🇪", "Argentina": "🇦🇷",
+      "Germany": "🇩🇪", "Hungary": "🇭🇺", "Turkey": "🇹🇷",
+      "Israel": "🇮🇱", "Jordan": "🇯🇴", "Maldives": "🇲🇻", "Sri Lanka": "🇱🇰",
+      "Malaysia": "🇲🇾", "Vietnam": "🇻🇳", "Portugal": "🇵🇹", "Croatia": "🇭🇷",
+      "Tanzania": "🇹🇿", "Kenya": "🇰🇪", "Ethiopia": "🇪🇹", "South Africa": "🇿🇦",
     };
     return flags[country] || "📍";
   };
