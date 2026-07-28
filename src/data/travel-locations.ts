@@ -77,6 +77,15 @@ export const travelLocations = [
   { id: 57, city: "Dubrovnik",      country: "Croatia",       lat: 42.6507,  lng: 18.0944,   continent: "Europe" },
   { id: 58, city: "Split",          country: "Croatia",       lat: 43.5081,  lng: 16.4402,   continent: "Europe" },
 
+  // Southeast Asia
+  { id: 67, city: "El Nido",        country: "Philippines",   lat: 11.1835,  lng: 119.4067,  continent: "Asia" },
+  { id: 68, city: "Manila",         country: "Philippines",   lat: 14.5995,  lng: 120.9842,  continent: "Asia" },
+
+  // Caribbean
+  { id: 64, city: "Kingston",       country: "Jamaica",       lat: 17.9970,  lng: -76.7936,  continent: "North America" },
+  { id: 65, city: "Port-au-Prince", country: "Haiti",         lat: 18.5944,  lng: -72.3074,  continent: "North America" },
+  { id: 66, city: "Nassau",         country: "Bahamas",       lat: 25.0480,  lng: -77.3554,  continent: "North America" },
+
   // Africa
   { id: 59, city: "Arusha",         country: "Tanzania",      lat: -3.3869,  lng: 36.6830,   continent: "Africa" },
   { id: 60, city: "Serengeti",      country: "Tanzania",      lat: -2.1540,  lng: 34.6857,   continent: "Africa" },

@@ -1,7 +1,10 @@
 import { useState, useMemo } from "react";
+import { Link } from "wouter";
+import { ArrowRight, ArrowLeft } from "lucide-react";
 import { InteractiveGlobe } from "@/components/Globe";
 import type { TravelLocation } from "@/components/Globe";
 import { travelLocations } from "@/data/travel-locations";
+import { Navbar } from "@/components/Navbar";
 
 export default function Home() {
   const [selectedLocation, setSelectedLocation] = useState<TravelLocation | null>(null);
@@ -34,6 +37,8 @@ export default function Home() {
       "Israel": "🇮🇱", "Jordan": "🇯🇴", "Maldives": "🇲🇻", "Sri Lanka": "🇱🇰",
       "Malaysia": "🇲🇾", "Vietnam": "🇻🇳", "Portugal": "🇵🇹", "Croatia": "🇭🇷",
       "Tanzania": "🇹🇿", "Kenya": "🇰🇪", "Ethiopia": "🇪🇹", "South Africa": "🇿🇦",
+      "Jamaica": "🇯🇲", "Haiti": "🇭🇹", "Bahamas": "🇧🇸",
+      "Philippines": "🇵🇭",
     };
     return flags[country] || "📍";
   };
@@ -41,21 +46,54 @@ export default function Home() {
   return (
     <div className="min-h-screen w-full bg-background flex flex-col overflow-hidden relative selection:bg-primary/30">
 
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 px-8 md:px-12 py-5 flex justify-between items-center">
-        <div className="text-xl md:text-2xl font-bold tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-          <span className="text-white">GeorgeP</span><span className="text-amber-400">.ai</span>
-        </div>
-        <div className="hidden md:flex gap-8 text-sm font-medium tracking-widest uppercase text-white/40">
-          <a href="#" className="hover:text-amber-400 transition-colors duration-300">Travel</a>
-          <a href="#" className="hover:text-amber-400 transition-colors duration-300">Work</a>
-          <a href="#" className="hover:text-amber-400 transition-colors duration-300">About</a>
-          <a href="#" className="hover:text-amber-400 transition-colors duration-300">Contact</a>
-        </div>
-      </nav>
+      <Navbar />
+
+      {/* Hero Split */}
+      <section className="pt-16 flex h-[52vh] min-h-[360px]">
+
+        {/* Professional */}
+        <Link href="/professional" className="group relative flex-1 flex flex-col justify-end p-10 overflow-hidden cursor-pointer border-r border-white/5">
+          {/* Background — swap the gradient for a real image later: add bg-[url('/your-image.jpg')] bg-cover bg-center */}
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-[#0e1520] to-[#0a0a14] transition-all duration-500 group-hover:from-slate-800" />
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(ellipse_at_bottom_left,rgba(245,158,11,0.1),transparent_65%)]" />
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-amber-500/0 group-hover:bg-amber-500/40 transition-all duration-500" />
+          <div className="relative z-10">
+            <p className="text-amber-400/50 text-[11px] tracking-[0.3em] uppercase mb-3 transition-colors group-hover:text-amber-400/80">Professional</p>
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-3" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              Work & Career
+            </h2>
+            <p className="text-white/35 text-sm max-w-xs group-hover:text-white/55 transition-colors">
+              Strategy, technology & what drives me professionally.
+            </p>
+            <div className="mt-5 flex items-center gap-2 text-amber-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-x-2 group-hover:translate-x-0">
+              View profile <ArrowRight className="w-4 h-4" />
+            </div>
+          </div>
+        </Link>
+
+        {/* Personal */}
+        <Link href="/personal" className="group relative flex-1 flex flex-col justify-end items-end p-10 overflow-hidden cursor-pointer">
+          {/* Background — swap the gradient for a real image later: add bg-[url('/your-image.jpg')] bg-cover bg-center */}
+          <div className="absolute inset-0 bg-gradient-to-bl from-[#0d1a2d] via-[#080f1a] to-[#040d20] transition-all duration-500 group-hover:from-[#0f2035]" />
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(ellipse_at_bottom_right,rgba(245,158,11,0.1),transparent_65%)]" />
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-amber-500/0 group-hover:bg-amber-500/40 transition-all duration-500" />
+          <div className="relative z-10 text-right">
+            <p className="text-amber-400/50 text-[11px] tracking-[0.3em] uppercase mb-3 transition-colors group-hover:text-amber-400/80">Personal</p>
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-3" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              Life & Travel
+            </h2>
+            <p className="text-white/35 text-sm max-w-xs ml-auto group-hover:text-white/55 transition-colors">
+              Traveller, food lover & everything in between.
+            </p>
+            <div className="mt-5 flex items-center justify-end gap-2 text-amber-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+              <ArrowLeft className="w-4 h-4" /> Learn more
+            </div>
+          </div>
+        </Link>
+      </section>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col md:flex-row relative pt-16">
+      <main id="travel" className="flex-1 flex flex-col md:flex-row relative">
 
         {/* Globe Section */}
         <div className="flex-1 relative h-[60vh] md:h-screen w-full flex flex-col">

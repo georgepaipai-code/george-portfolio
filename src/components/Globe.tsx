@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
-
-const GEO_URL = "https://unpkg.com/world-atlas@2/countries-110m.json";
+import { geoOrthographic, geoPath } from "d3-geo";
+import worldData  from "../data/geo/countries-110m.json";
+import statesData from "../data/geo/us-states.json";
 
 export interface TravelLocation {
   id: number;
@@ -57,6 +58,10 @@ const COUNTRY_ISO: Record<string, number[]> = {
   "Kenya": [404],
   "Ethiopia": [231],
   "South Africa": [710],
+  "Jamaica": [388],
+  "Haiti": [332],
+  "Bahamas": [44],
+  "Philippines": [608],
 };
 
 export function InteractiveGlobe({ locations, onLocationClick, targetLocation }: GlobeProps) {
@@ -73,13 +78,19 @@ export function InteractiveGlobe({ locations, onLocationClick, targetLocation }:
     locations.flatMap(loc => COUNTRY_ISO[loc.country] ?? [])
   );
 
+  const stateBorders = useMemo(() => {
+    const proj = geoOrthographic().translate([350, 350]).scale(280).rotate(rotation);
+    const pathFn = geoPath(proj);
+    return (statesData as { features: { id: string; geometry: unknown }[] }).features
+      .map(geo => ({ id: geo.id, d: pathFn(geo as Parameters<typeof pathFn>[0]) ?? "" }))
+      .filter(s => s.d);
+  }, [rotation]);
+
   useEffect(() => {
     const animate = (time: number) => {
       if (!isDragging.current && isAutoRotating.current) {
         const dt = lastTimeRef.current ? time - lastTimeRef.current : 0;
-        if (dt > 0) {
-          setRotation((r) => [r[0] + dt * 0.007, r[1], r[2]]);
-        }
+        if (dt > 0) setRotation(r => [r[0] + dt * 0.007, r[1], r[2]]);
       }
       lastTimeRef.current = time;
       animRef.current = requestAnimationFrame(animate);
@@ -108,7 +119,7 @@ export function InteractiveGlobe({ locations, onLocationClick, targetLocation }:
     const dx = e.clientX - lastMousePos.current.x;
     const dy = e.clientY - lastMousePos.current.y;
     lastMousePos.current = { x: e.clientX, y: e.clientY };
-    setRotation((r) => [
+    setRotation(r => [
       r[0] + dx * 0.35,
       Math.max(-75, Math.min(75, r[1] - dy * 0.35)),
       r[2],
@@ -122,14 +133,12 @@ export function InteractiveGlobe({ locations, onLocationClick, targetLocation }:
 
   const isVisible = useCallback(
     (lng: number, lat: number): boolean => {
-      const toRad = (deg: number) => (deg * Math.PI) / 180;
-      const centreLat = toRad(-rotation[1]);
-      const centreLng = toRad(-rotation[0]);
-      const pLat = toRad(lat);
-      const pLng = toRad(lng);
+      const toRad = (d: number) => (d * Math.PI) / 180;
+      const clat = toRad(-rotation[1]);
+      const clng = toRad(-rotation[0]);
       const cos =
-        Math.sin(pLat) * Math.sin(centreLat) +
-        Math.cos(pLat) * Math.cos(centreLat) * Math.cos(pLng - centreLng);
+        Math.sin(toRad(lat)) * Math.sin(clat) +
+        Math.cos(toRad(lat)) * Math.cos(clat) * Math.cos(toRad(lng) - clng);
       return cos > 0.08;
     },
     [rotation]
@@ -175,29 +184,25 @@ export function InteractiveGlobe({ locations, onLocationClick, targetLocation }:
             <feGaussianBlur stdDeviation="2.5" result="blur" />
             <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
           </filter>
-          <filter id="countryGlow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="1.5" result="blur" />
-            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-          </filter>
         </defs>
 
         <circle cx={350} cy={350} r={280} fill="url(#sphereGrad)" />
 
-        <Geographies geography={GEO_URL}>
+        <Geographies geography={worldData}>
           {({ geographies }) =>
-            geographies.map((geo) => {
-              const isoNum = Number(geo.id);
-              const isVisited = visitedIsoCodes.has(isoNum);
+            geographies.map(geo => {
+              const iso = Number(geo.id);
+              const visited = visitedIsoCodes.has(iso);
               return (
                 <Geography
                   key={geo.rsmKey}
                   geography={geo}
-                  fill={isVisited ? "#c17d11" : "#183e6a"}
-                  stroke={isVisited ? "#f59e0b" : "#2460a0"}
-                  strokeWidth={isVisited ? 0.8 : 0.5}
+                  fill={visited ? "#c17d11" : "#183e6a"}
+                  stroke={visited ? "#f59e0b" : "#2460a0"}
+                  strokeWidth={visited ? 0.8 : 0.5}
                   style={{
-                    default: { outline: "none", filter: isVisited ? "url(#countryGlow)" : undefined, opacity: isVisited ? 0.85 : 1 },
-                    hover: { fill: isVisited ? "#d4930e" : "#1f5080", outline: "none" },
+                    default: { outline: "none" },
+                    hover:   { outline: "none", fill: visited ? "#d4930e" : "#1f5080" },
                     pressed: { outline: "none" },
                   }}
                 />
@@ -210,8 +215,8 @@ export function InteractiveGlobe({ locations, onLocationClick, targetLocation }:
         <ellipse cx={285} cy={265} rx={70} ry={50} fill="white" opacity={0.035} style={{ pointerEvents: "none" }} />
 
         {locations
-          .filter((loc) => isVisible(loc.lng, loc.lat))
-          .map((loc) => (
+          .filter(loc => isVisible(loc.lng, loc.lat))
+          .map(loc => (
             <Marker
               key={loc.id}
               coordinates={[loc.lng, loc.lat]}
@@ -220,16 +225,35 @@ export function InteractiveGlobe({ locations, onLocationClick, targetLocation }:
               onMouseLeave={() => setHoveredLocation(null)}
             >
               <circle r={9} fill="#f59e0b" opacity={hoveredLocation?.id === loc.id ? 0.4 : 0.2} style={{ transition: "opacity 0.2s" }} />
-              <circle r={3.5} fill={hoveredLocation?.id === loc.id ? "#fcd34d" : "#f59e0b"} opacity={0.95}
-                style={{ filter: "url(#pinGlow)", cursor: "pointer", transition: "fill 0.2s" }} />
+              <circle
+                r={3.5}
+                fill={hoveredLocation?.id === loc.id ? "#fcd34d" : "#f59e0b"}
+                opacity={0.95}
+                style={{ filter: "url(#pinGlow)", cursor: "pointer", transition: "fill 0.2s" }}
+              />
             </Marker>
           ))}
       </ComposableMap>
 
+      <svg
+        viewBox="0 0 700 700"
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
+      >
+        {stateBorders.map(({ id, d }) => (
+          <path key={id} d={d} fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth={0.5} />
+        ))}
+      </svg>
+
       {hoveredLocation && (
-        <div className="absolute top-6 left-1/2 -translate-x-1/2 pointer-events-none z-20" style={{ whiteSpace: "nowrap" }} data-testid="globe-tooltip">
+        <div
+          className="absolute top-6 left-1/2 -translate-x-1/2 pointer-events-none z-20"
+          style={{ whiteSpace: "nowrap" }}
+          data-testid="globe-tooltip"
+        >
           <div className="bg-black/85 backdrop-blur-md border border-amber-500/40 rounded-xl px-4 py-2.5 shadow-2xl text-center">
-            <div className="text-white font-semibold text-sm" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{hoveredLocation.city}</div>
+            <div className="text-white font-semibold text-sm" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              {hoveredLocation.city}
+            </div>
             <div className="text-white/55 text-xs mt-0.5">{hoveredLocation.country}</div>
           </div>
         </div>
