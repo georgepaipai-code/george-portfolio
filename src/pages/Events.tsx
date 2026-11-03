@@ -46,7 +46,8 @@ export default function Events() {
   const filtered = useMemo(() => {
     if (!events) return [];
     if (filter === "all") return events;
-    if (filter === "picks") return events.filter((e) => e.featured);
+    if (filter === "recommend") return events.filter((e) => e.recommendation === "recommend");
+    if (filter === "highlyRecommend") return events.filter((e) => e.recommendation === "highlyRecommend");
     if (filter === "cohosted") return events.filter((e) => e.cohosted);
     const tag = filter.slice("tag:".length);
     return events.filter((e) => e.tags.includes(tag));

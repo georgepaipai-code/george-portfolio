@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { MapPin, Globe } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { formatPacificTime } from "@/lib/timezone";
+import { recommendationLabel } from "@/lib/recommendation";
 import type { EventRecord } from "@/types/event";
 
 export function EventCard({ event }: { event: EventRecord }) {
@@ -38,11 +39,11 @@ export function EventCard({ event }: { event: EventRecord }) {
             {event.isOnline ? "Online" : event.locationName || event.city || "TBA"}
           </span>
         </div>
-        {(event.featured || event.cohosted) && (
+        {(event.recommendation || event.cohosted) && (
           <div className="flex gap-2 pt-1">
-            {event.featured && (
+            {recommendationLabel(event.recommendation) && (
               <Badge variant="default" className="bg-primary/90">
-                George&apos;s Pick
+                {recommendationLabel(event.recommendation)}
               </Badge>
             )}
             {event.cohosted && <Badge variant="secondary">Cohosted</Badge>}

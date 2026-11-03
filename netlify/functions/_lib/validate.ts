@@ -1,4 +1,6 @@
-import type { EventDraft } from "../../../src/types/event";
+import type { EventDraft, Recommendation } from "../../../src/types/event";
+
+const RECOMMENDATION_VALUES: Recommendation[] = ["recommend", "highlyRecommend"];
 
 export class ValidationError extends Error {}
 
@@ -102,7 +104,16 @@ export function validateEventInput(body: unknown, requireCore: boolean): EventDr
   if (sourceUrl !== undefined) draft.sourceUrl = sourceUrl;
 
   draft.tags = asOptionalTags(b.tags);
-  draft.featured = asOptionalBool(b.featured, "featured", false);
+
+  if (b.recommendation !== undefined && b.recommendation !== null && b.recommendation !== "") {
+    if (!RECOMMENDATION_VALUES.includes(b.recommendation as Recommendation)) {
+      throw new ValidationError('"recommendation" must be "recommend" or "highlyRecommend"');
+    }
+    draft.recommendation = b.recommendation as Recommendation;
+  } else {
+    draft.recommendation = undefined;
+  }
+
   draft.cohosted = asOptionalBool(b.cohosted, "cohosted", false);
 
   const cohostLabel = asOptionalString(b.cohostLabel, "cohostLabel");

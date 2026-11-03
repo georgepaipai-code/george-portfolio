@@ -3,10 +3,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { pacificWallTimeToUtcIso, utcIsoToPacificParts } from "@/lib/timezone";
 import type { EventDraft } from "@/types/event";
+
+type RecommendationFormValue = "" | "recommend" | "highlyRecommend";
 
 function FieldWrapper({
   label,
@@ -51,7 +54,7 @@ export interface EventFormValues {
   registrationUrl: string;
   sourceUrl: string;
   tags: string;
-  featured: boolean;
+  recommendation: RecommendationFormValue;
   cohosted: boolean;
   cohostLabel: string;
 }
@@ -75,7 +78,7 @@ function draftToFormValues(draft: EventDraft): EventFormValues {
     registrationUrl: draft.registrationUrl ?? "",
     sourceUrl: draft.sourceUrl ?? "",
     tags: (draft.tags ?? []).join(", "),
-    featured: draft.featured ?? false,
+    recommendation: draft.recommendation ?? "",
     cohosted: draft.cohosted ?? false,
     cohostLabel: draft.cohostLabel ?? "",
   };
@@ -127,7 +130,7 @@ export function EventForm({
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean),
-      featured: values.featured,
+      recommendation: values.recommendation || undefined,
       cohosted: values.cohosted,
       cohostLabel: values.cohosted ? values.cohostLabel.trim() || undefined : undefined,
     };
@@ -249,13 +252,27 @@ export function EventForm({
         <Input id="tags" value={values.tags} onChange={(e) => set("tags", e.target.value)} />
       </FieldWrapper>
 
-      <div className="flex items-center gap-2">
-        <Checkbox
-          id="featured"
-          checked={values.featured}
-          onCheckedChange={(checked) => set("featured", checked === true)}
-        />
-        <Label htmlFor="featured">George&apos;s Pick</Label>
+      <div className="space-y-2">
+        <Label>Recommendation</Label>
+        <RadioGroup
+          value={values.recommendation || "none"}
+          onValueChange={(value) =>
+            set("recommendation", value === "none" ? "" : (value as RecommendationFormValue))
+          }
+        >
+          <div className="flex items-center gap-2">
+            <RadioGroupItem id="recommendation-none" value="none" />
+            <Label htmlFor="recommendation-none">None</Label>
+          </div>
+          <div className="flex items-center gap-2">
+            <RadioGroupItem id="recommendation-recommend" value="recommend" />
+            <Label htmlFor="recommendation-recommend">Recommend</Label>
+          </div>
+          <div className="flex items-center gap-2">
+            <RadioGroupItem id="recommendation-highly" value="highlyRecommend" />
+            <Label htmlFor="recommendation-highly">Highly Recommend</Label>
+          </div>
+        </RadioGroup>
       </div>
 
       <div className="flex items-center gap-2">

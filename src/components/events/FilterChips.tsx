@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-export type FilterValue = "all" | "picks" | "cohosted" | `tag:${string}`;
+export type FilterValue = "all" | "recommend" | "highlyRecommend" | "cohosted" | `tag:${string}`;
 
 export function FilterChips({
   tags,
@@ -13,7 +13,8 @@ export function FilterChips({
 }) {
   const chips: { value: FilterValue; label: string }[] = [
     { value: "all", label: "All" },
-    { value: "picks", label: "George's Picks" },
+    { value: "highlyRecommend", label: "Highly Recommend" },
+    { value: "recommend", label: "Recommend" },
     { value: "cohosted", label: "Cohosted" },
     ...tags.map((tag) => ({ value: `tag:${tag}` as FilterValue, label: tag })),
   ];

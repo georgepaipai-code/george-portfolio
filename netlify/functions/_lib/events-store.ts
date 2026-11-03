@@ -85,7 +85,7 @@ export async function createEvent(draft: EventDraft): Promise<EventRecord> {
     registrationUrl: draft.registrationUrl ?? "",
     sourceUrl: draft.sourceUrl,
     tags: draft.tags ?? [],
-    featured: draft.featured ?? false,
+    recommendation: draft.recommendation,
     cohosted: draft.cohosted ?? false,
     cohostLabel: draft.cohostLabel,
     createdAt: now,

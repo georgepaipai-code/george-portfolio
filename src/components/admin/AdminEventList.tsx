@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatPacificDateHeading, formatPacificTime } from "@/lib/timezone";
+import { recommendationLabel } from "@/lib/recommendation";
 import type { EventRecord } from "@/types/event";
 
 function Row({
@@ -17,7 +18,9 @@ function Row({
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <h3 className="truncate font-medium text-foreground">{event.title}</h3>
-          {event.featured && <Badge className="bg-primary/90">Pick</Badge>}
+          {recommendationLabel(event.recommendation) && (
+            <Badge className="bg-primary/90">{recommendationLabel(event.recommendation)}</Badge>
+          )}
           {event.cohosted && <Badge variant="secondary">Cohosted</Badge>}
         </div>
         <p className="mt-0.5 text-sm text-muted-foreground">

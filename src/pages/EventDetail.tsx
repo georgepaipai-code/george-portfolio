@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getEventById, ApiError } from "@/lib/events-api";
 import { formatPacificFullDate, formatPacificTime } from "@/lib/timezone";
 import { buildGoogleCalendarUrl, downloadIcsFile } from "@/lib/ics";
+import { recommendationLabel } from "@/lib/recommendation";
 
 function useDocumentMeta(title: string | undefined, description: string | undefined, image: string | undefined) {
   useEffect(() => {
@@ -105,7 +106,9 @@ export default function EventDetail() {
         )}
 
         <div className="mb-3 flex flex-wrap gap-2">
-          {event.featured && <Badge className="bg-primary/90">George&apos;s Pick</Badge>}
+          {recommendationLabel(event.recommendation) && (
+            <Badge className="bg-primary/90">{recommendationLabel(event.recommendation)}</Badge>
+          )}
           {event.cohosted && <Badge variant="secondary">{event.cohostLabel || "Cohosted"}</Badge>}
           {event.tags.map((tag) => (
             <Badge key={tag} variant="outline">

@@ -25,9 +25,10 @@ export function selectNewsletterEvents(upcoming: EventRecord[], rangeDays: Newsl
   const cutoff = Date.now() + rangeDays * 24 * 60 * 60 * 1000;
   const inRange = upcoming.filter((e) => new Date(e.start).getTime() <= cutoff);
   const byStart = (a: EventRecord, b: EventRecord) => new Date(a.start).getTime() - new Date(b.start).getTime();
-  const picks = inRange.filter((e) => e.featured).sort(byStart);
-  const rest = inRange.filter((e) => !e.featured).sort(byStart);
-  return [...picks, ...rest];
+  const highlyRecommended = inRange.filter((e) => e.recommendation === "highlyRecommend").sort(byStart);
+  const recommended = inRange.filter((e) => e.recommendation === "recommend").sort(byStart);
+  const rest = inRange.filter((e) => !e.recommendation).sort(byStart);
+  return [...highlyRecommended, ...recommended, ...rest];
 }
 
 function eventUrl(id: string): string {

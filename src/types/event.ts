@@ -1,3 +1,5 @@
+export type Recommendation = "recommend" | "highlyRecommend";
+
 export interface EventRecord {
   id: string;
   title: string;
@@ -14,7 +16,7 @@ export interface EventRecord {
   registrationUrl: string;
   sourceUrl?: string;
   tags: string[];
-  featured: boolean;
+  recommendation?: Recommendation;
   cohosted: boolean;
   cohostLabel?: string;
   createdAt: string;
@@ -22,11 +24,10 @@ export interface EventRecord {
 }
 
 export type EventDraft = Partial<
-  Omit<EventRecord, "id" | "createdAt" | "updatedAt" | "tags" | "isOnline" | "featured" | "cohosted">
+  Omit<EventRecord, "id" | "createdAt" | "updatedAt" | "tags" | "isOnline" | "cohosted">
 > & {
   tags?: string[];
   isOnline?: boolean;
-  featured?: boolean;
   cohosted?: boolean;
 };
 
