@@ -3,14 +3,35 @@ import { safeFetch } from "./ssrf-guard";
 import { requireEnv } from "./env";
 import type { EventDraft } from "../../../src/types/event";
 
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " ",
+  rsquo: "’",
+  lsquo: "‘",
+  rdquo: "”",
+  ldquo: "“",
+  mdash: "—",
+  ndash: "–",
+  hellip: "…",
+  trade: "™",
+  copy: "©",
+  reg: "®",
+};
+
 function decodeEntities(text: string): string {
-  return text
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, " ");
+  return text.replace(/&(#x[0-9a-fA-F]+|#\d+|[a-zA-Z]+);/g, (match, body: string) => {
+    if (body[0] === "#") {
+      const isHex = body[1]?.toLowerCase() === "x";
+      const code = parseInt(body.slice(isHex ? 2 : 1), isHex ? 16 : 10);
+      return Number.isNaN(code) ? match : String.fromCodePoint(code);
+    }
+    const replacement = NAMED_ENTITIES[body.toLowerCase()];
+    return replacement ?? match;
+  });
 }
 
 // ---- schema.org Event JSON-LD ----
