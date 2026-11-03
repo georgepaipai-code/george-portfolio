@@ -1,3 +1,15 @@
 [build]
   command = "pnpm build"
   publish = "dist"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# SPA fallback: client-side routing (wouter) needs every non-asset path to
+# serve index.html. Netlify Functions declare their own `path` config and
+# are matched before this catch-all, so /api/* is unaffected.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

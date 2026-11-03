@@ -1,10 +1,10 @@
 import { Link, useLocation } from "wouter";
 
 const links = [
-  { label: "About",         href: "/personal" },
   { label: "Work Life",     href: "/professional" },
   { label: "Personal Life", href: "/personal" },
-  { label: "Travel",        href: "/" },
+  { label: "Travel",        href: "/travel" },
+  { label: "Events",        href: "/events" },
   { label: "Contact",       href: "#contact" },
 ];
 
@@ -18,7 +18,7 @@ export function Navbar() {
       </Link>
       <div className="hidden md:flex gap-8 text-sm font-medium tracking-widest uppercase">
         {links.map(({ label, href }) => {
-          const isActive = href !== "/" && location.startsWith(href);
+          const isActive = href.startsWith("/") && location === href;
           return (
             <Link
               key={label}

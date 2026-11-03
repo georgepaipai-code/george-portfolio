@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Event submission form (Netlify Forms detection only)</title>
+  </head>
+  <body>
+    <!--
+      This page exists only so Netlify's build-time crawler can discover the
+      "event-submission" form and its fields. The real form a visitor fills out
+      lives at /events/submit and is rendered by React; it submits to this same
+      form name via a background fetch(). Nobody is meant to visit this page.
+    -->
+    <form name="event-submission" data-netlify="true" netlify-honeypot="bot-field">
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <input type="text" name="eventLink" />
+      <textarea name="note"></textarea>
+      <input type="text" name="bot-field" />
+    </form>
+  </body>
+</html>
