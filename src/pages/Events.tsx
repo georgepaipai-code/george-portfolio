@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Navbar } from "@/components/Navbar";
@@ -6,12 +6,16 @@ import { Button } from "@/components/ui/button";
 import { NewsletterBox } from "@/components/events/NewsletterBox";
 import { FilterChips, type FilterValue } from "@/components/events/FilterChips";
 import { EventCard } from "@/components/events/EventCard";
+import { PastEventCard } from "@/components/events/PastEventCard";
 import { DateGroupHeader } from "@/components/events/DateGroupHeader";
 import { EventsSkeleton } from "@/components/events/EventsSkeleton";
 import { EmptyState } from "@/components/events/EmptyState";
 import { getUpcomingEvents, getPastEvents } from "@/lib/events-api";
 import { formatPacificDateHeading, pacificDateKey } from "@/lib/timezone";
 import type { EventRecord } from "@/types/event";
+
+const INITIAL_VISIBLE = 6;
+const LOAD_MORE_STEP = 5;
 
 function groupByDate(events: EventRecord[]): { key: string; label: string; events: EventRecord[] }[] {
   const groups = new Map<string, EventRecord[]>();
@@ -28,12 +32,17 @@ function groupByDate(events: EventRecord[]): { key: string; label: string; event
 }
 
 export default function Events() {
-  const [showPast, setShowPast] = useState(false);
   const [filter, setFilter] = useState<FilterValue>("all");
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
 
   const { data: events, isLoading } = useQuery({
-    queryKey: ["events", showPast],
-    queryFn: () => (showPast ? getPastEvents() : getUpcomingEvents()),
+    queryKey: ["events", "upcoming"],
+    queryFn: getUpcomingEvents,
+  });
+
+  const { data: pastEvents } = useQuery({
+    queryKey: ["events", "past"],
+    queryFn: getPastEvents,
   });
 
   const tags = useMemo(() => {
@@ -53,7 +62,16 @@ export default function Events() {
     return events.filter((e) => e.tags.includes(tag));
   }, [events, filter]);
 
-  const groups = useMemo(() => groupByDate(filtered), [filtered]);
+  // The visible-count limit resets whenever the filter changes.
+  useEffect(() => {
+    setVisibleCount(INITIAL_VISIBLE);
+  }, [filter]);
+
+  const visible = filtered.slice(0, visibleCount);
+  const hasMore = visibleCount < filtered.length;
+  const groups = useMemo(() => groupByDate(visible), [visible]);
+
+  const recentPastEvents = (pastEvents ?? []).slice(0, 3);
 
   return (
     <div className="min-h-screen bg-background text-white">
@@ -70,38 +88,15 @@ export default function Events() {
           friend to.
         </p>
 
-        <div className="mt-8">
-          <NewsletterBox />
-        </div>
-
-        <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-10">
           <FilterChips tags={tags} active={filter} onChange={setFilter} />
-          <Button asChild variant="outline" size="sm" className="shrink-0">
-            <Link href="/events/submit">Submit an event</Link>
-          </Button>
-        </div>
-
-        <div className="mt-4 flex justify-end">
-          <button
-            type="button"
-            onClick={() => setShowPast((v) => !v)}
-            className="text-sm font-medium text-muted-foreground underline-offset-4 hover:text-primary hover:underline"
-          >
-            {showPast ? "← Back to upcoming events" : "Past events →"}
-          </button>
         </div>
 
         <div className="mt-6 space-y-8">
           {isLoading ? (
             <EventsSkeleton />
           ) : groups.length === 0 ? (
-            <EmptyState
-              message={
-                showPast
-                  ? "No past events to show."
-                  : "No upcoming events yet. Subscribe to hear about the next one."
-              }
-            />
+            <EmptyState message="No upcoming events yet. Subscribe to hear about the next one." />
           ) : (
             groups.map((group) => (
               <div key={group.key}>
@@ -114,6 +109,41 @@ export default function Events() {
               </div>
             ))
           )}
+        </div>
+
+        {hasMore && (
+          <div className="mt-6 flex justify-center">
+            <Button variant="outline" onClick={() => setVisibleCount((v) => v + LOAD_MORE_STEP)}>
+              See more
+            </Button>
+          </div>
+        )}
+
+        {recentPastEvents.length > 0 && (
+          <section className="mt-16">
+            <h2 className="mb-4 font-display text-lg font-bold uppercase tracking-wide text-foreground">
+              Past Events
+            </h2>
+            <div className="grid grid-cols-3 gap-4">
+              {recentPastEvents.map((event) => (
+                <PastEventCard key={event.id} event={event} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        <div className="mt-16">
+          <NewsletterBox />
+        </div>
+
+        <div className="mt-16 border-t border-card-border pt-8 text-center">
+          <p className="mb-4 text-muted-foreground">
+            Hosting something founders should know about? Send it my way and I&apos;ll review it for the
+            list.
+          </p>
+          <Button asChild variant="outline">
+            <Link href="/events/submit">Submit an event</Link>
+          </Button>
         </div>
       </div>
     </div>

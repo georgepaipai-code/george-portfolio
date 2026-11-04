@@ -142,12 +142,7 @@ export default function Admin() {
       <Navbar />
 
       <div className="mx-auto max-w-3xl px-6 pb-24 pt-28 md:px-8">
-        <div className="flex items-center justify-between">
-          <h1 className="font-display text-2xl font-bold text-white md:text-3xl">Admin</h1>
-          <Button variant="outline" size="sm" onClick={handleLogout}>
-            Log out
-          </Button>
-        </div>
+        <h1 className="font-display text-2xl font-bold text-white md:text-3xl">Admin</h1>
 
         <div className="mt-6">
           <Button
@@ -160,17 +155,23 @@ export default function Admin() {
         </div>
 
         <div className="mt-8">
-          <h2 className="mb-3 font-display text-lg font-semibold">Copy newsletter</h2>
-          <CopyNewsletterPanel upcomingEvents={upcomingQuery.data ?? []} />
-        </div>
-
-        <div className="mt-10">
           <AdminEventList
             upcoming={upcomingQuery.data ?? []}
             past={pastQuery.data ?? []}
             onEdit={(event) => setPanel({ mode: "edit", event })}
             onDeleteRequest={(event) => setDeleteTarget(event)}
           />
+        </div>
+
+        <div className="mt-14 border-t border-card-border pt-8">
+          <h2 className="mb-3 font-display text-lg font-semibold">Newsletter</h2>
+          <CopyNewsletterPanel upcomingEvents={upcomingQuery.data ?? []} />
+        </div>
+
+        <div className="mt-10 border-t border-card-border pt-6">
+          <Button variant="outline" onClick={handleLogout}>
+            Log out
+          </Button>
         </div>
       </div>
 
