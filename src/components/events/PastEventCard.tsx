@@ -9,7 +9,7 @@ export function PastEventCard({ event }: { event: EventRecord }) {
       href={`/events/${event.id}`}
       className="group block overflow-hidden rounded-lg border border-card-border bg-card transition-colors hover:border-primary/40"
     >
-      <div className="aspect-[4/3] w-full overflow-hidden bg-muted">
+      <div className="aspect-square w-full overflow-hidden bg-muted">
         {event.imageUrl ? (
           <img
             src={event.imageUrl}

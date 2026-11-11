@@ -8,6 +8,7 @@ import { FilterChips, type FilterValue } from "@/components/events/FilterChips";
 import { EventCard } from "@/components/events/EventCard";
 import { PastEventCard } from "@/components/events/PastEventCard";
 import { DateGroupHeader } from "@/components/events/DateGroupHeader";
+import { EventsCalendar } from "@/components/events/EventsCalendar";
 import { EventsSkeleton } from "@/components/events/EventsSkeleton";
 import { EmptyState } from "@/components/events/EmptyState";
 import { getUpcomingEvents, getPastEvents } from "@/lib/events-api";
@@ -34,6 +35,7 @@ function groupByDate(events: EventRecord[]): { key: string; label: string; event
 export default function Events() {
   const [filter, setFilter] = useState<FilterValue>("all");
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
+  const [pendingScrollKey, setPendingScrollKey] = useState<string | null>(null);
 
   const { data: events, isLoading } = useQuery({
     queryKey: ["events", "upcoming"],
@@ -71,13 +73,30 @@ export default function Events() {
   const hasMore = visibleCount < filtered.length;
   const groups = useMemo(() => groupByDate(visible), [visible]);
 
-  const recentPastEvents = (pastEvents ?? []).slice(0, 3);
+  // Once enough events are revealed to include the target date, scroll to it.
+  useEffect(() => {
+    if (!pendingScrollKey) return;
+    const el = document.getElementById(`date-${pendingScrollKey}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      setPendingScrollKey(null);
+    }
+  }, [pendingScrollKey, groups]);
+
+  function handleJumpToDate(dateKey: string) {
+    const index = filtered.findIndex((e) => pacificDateKey(e.start) === dateKey);
+    if (index === -1) return;
+    setVisibleCount((v) => Math.max(v, index + 1));
+    setPendingScrollKey(dateKey);
+  }
+
+  const recentPastEvents = (pastEvents ?? []).slice(0, 10);
 
   return (
     <div className="min-h-screen bg-background text-white">
       <Navbar />
 
-      <div className="mx-auto max-w-3xl px-6 pb-24 pt-28 md:px-8">
+      <div className="mx-auto max-w-5xl px-6 pb-24 pt-28 md:px-8">
         <p className="mb-2 text-[11px] uppercase tracking-[0.3em] text-amber-400/70">Events</p>
         <h1 className="font-display text-3xl font-bold text-white md:text-4xl">
           George Pai&apos;s Bay Area Founder Events
@@ -88,62 +107,72 @@ export default function Events() {
           friend to.
         </p>
 
-        <div className="mt-10">
-          <FilterChips tags={tags} active={filter} onChange={setFilter} />
-        </div>
+        <div className="mt-10 lg:grid lg:grid-cols-[1fr_240px] lg:gap-10">
+          <div className="min-w-0">
+            <FilterChips tags={tags} active={filter} onChange={setFilter} />
 
-        <div className="mt-6 space-y-8">
-          {isLoading ? (
-            <EventsSkeleton />
-          ) : groups.length === 0 ? (
-            <EmptyState message="No upcoming events yet. Subscribe to hear about the next one." />
-          ) : (
-            groups.map((group) => (
-              <div key={group.key}>
-                <DateGroupHeader label={group.label} />
-                <div className="mt-3 space-y-3">
-                  {group.events.map((event) => (
-                    <EventCard key={event.id} event={event} />
+            <div className="mt-6 space-y-8">
+              {isLoading ? (
+                <EventsSkeleton />
+              ) : groups.length === 0 ? (
+                <EmptyState message="No upcoming events yet. Subscribe to hear about the next one." />
+              ) : (
+                groups.map((group) => (
+                  <div key={group.key} id={`date-${group.key}`}>
+                    <DateGroupHeader label={group.label} />
+                    <div className="mt-3 space-y-3">
+                      {group.events.map((event) => (
+                        <EventCard key={event.id} event={event} />
+                      ))}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {hasMore && (
+              <div className="mt-6 flex justify-center">
+                <Button variant="outline" onClick={() => setVisibleCount((v) => v + LOAD_MORE_STEP)}>
+                  See more
+                </Button>
+              </div>
+            )}
+
+            {recentPastEvents.length > 0 && (
+              <section className="mt-16">
+                <h2 className="mb-4 font-display text-lg font-bold uppercase tracking-wide text-foreground">
+                  Past Events
+                </h2>
+                <div className="flex gap-4 overflow-x-auto pb-2">
+                  {recentPastEvents.map((event) => (
+                    <div key={event.id} className="w-36 flex-shrink-0 sm:w-44">
+                      <PastEventCard event={event} />
+                    </div>
                   ))}
                 </div>
-              </div>
-            ))
-          )}
-        </div>
+              </section>
+            )}
 
-        {hasMore && (
-          <div className="mt-6 flex justify-center">
-            <Button variant="outline" onClick={() => setVisibleCount((v) => v + LOAD_MORE_STEP)}>
-              See more
-            </Button>
-          </div>
-        )}
-
-        {recentPastEvents.length > 0 && (
-          <section className="mt-16">
-            <h2 className="mb-4 font-display text-lg font-bold uppercase tracking-wide text-foreground">
-              Past Events
-            </h2>
-            <div className="grid grid-cols-3 gap-4">
-              {recentPastEvents.map((event) => (
-                <PastEventCard key={event.id} event={event} />
-              ))}
+            <div className="mt-16">
+              <NewsletterBox />
             </div>
-          </section>
-        )}
 
-        <div className="mt-16">
-          <NewsletterBox />
-        </div>
+            <div className="mt-16 border-t border-card-border pt-8 text-center">
+              <p className="mb-4 text-muted-foreground">
+                Hosting something founders should know about? Send it my way and I&apos;ll review it for
+                the list.
+              </p>
+              <Button asChild variant="outline">
+                <Link href="/events/submit">Submit an event</Link>
+              </Button>
+            </div>
+          </div>
 
-        <div className="mt-16 border-t border-card-border pt-8 text-center">
-          <p className="mb-4 text-muted-foreground">
-            Hosting something founders should know about? Send it my way and I&apos;ll review it for the
-            list.
-          </p>
-          <Button asChild variant="outline">
-            <Link href="/events/submit">Submit an event</Link>
-          </Button>
+          <div className="mt-10 lg:order-last lg:mt-0">
+            <div className="lg:sticky lg:top-28">
+              <EventsCalendar events={filtered} onJumpToDate={handleJumpToDate} />
+            </div>
+          </div>
         </div>
       </div>
     </div>

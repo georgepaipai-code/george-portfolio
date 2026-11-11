@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import { travelLocations } from "@/data/travel-locations";
+import { FoodFavorites } from "@/components/personal/FoodFavorites";
 
 const cityCount = travelLocations.length;
 const countryCount = new Set(travelLocations.map(l => l.country)).size;
@@ -11,15 +12,26 @@ export default function Personal() {
 
       <Navbar />
 
-      <div className="max-w-3xl mx-auto px-8 pt-32 pb-24">
-
-        {/* Header */}
-        <div className="mb-16">
-          <p className="text-amber-400/60 text-[11px] tracking-[0.3em] uppercase mb-4">Personal</p>
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-            Beyond Work
+      {/* Banner */}
+      <div className="relative h-[28rem] w-full overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/george-personal.png')] bg-cover" style={{ backgroundPosition: 'center 20%' }} />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-background" />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-3xl px-8 pb-6">
+          <p className="text-amber-400/70 text-[11px] tracking-[0.3em] uppercase mb-2">Personal</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            Life
           </h1>
-          <p className="text-white/40 text-xl">The things that make life interesting.</p>
+        </div>
+      </div>
+
+      <div className="max-w-3xl mx-auto px-8 pt-10 pb-24">
+
+        {/* Subheading */}
+        <div className="mb-16">
+          <p className="text-white/40 text-xl">
+            Bay Area native, proud dad, and travel points maximizer. When I&apos;m home, I&apos;m
+            eating my way through town and opening a good bottle of wine with friends.
+          </p>
         </div>
 
         {/* Travel */}
@@ -51,8 +63,13 @@ export default function Personal() {
             Food
           </h2>
           <p className="text-white/65 text-lg leading-relaxed">
-            I live to eat. From hole-in-the-wall ramen spots in Tokyo to the best ceviche in Lima — food is always the highlight of any trip. Half my travel itinerary is honestly just a list of restaurants. [ Add more here. ]
+            I live to eat. From hole-in-the-wall ramen spots in Tokyo to the best ceviche in Lima — food is always the highlight of any trip. Half my travel itinerary is honestly just a list of restaurants. Listed below are my top restaurants in that particular category.
           </p>
+
+          <h3 className="mb-4 mt-8 text-sm font-semibold uppercase tracking-wide text-white/70">
+            Where I Eat
+          </h3>
+          <FoodFavorites />
         </section>
 
         {/* TBD */}
