@@ -44,11 +44,10 @@ export default function Professional() {
           </h2>
           <p className="text-white/65 text-lg leading-relaxed">
             I&apos;m a Bay Area native who&apos;s spent my career helping early stage founders get
-            from their first check to Series A. I&apos;ve worked in venture capital, startup
-            accelerators across the US and Asia, startup banking, and a high growth startup, and
-            along the way I cofounded a company, helped build a fund, was an angel investor, and
-            advised founders. Now I&apos;m building a grassroots founder ecosystem backed by the
-            global resources of Fidelity.
+            from their first check to Series A. My path so far: VC, hypergrowth startups in the US
+            and Asia, cofounder, angel investor, and founder advisor. Now I&apos;m building a
+            grassroots founder ecosystem backed by the global resources of Fidelity. Let&apos;s
+            collab!
           </p>
         </section>
 
